@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-12 text-center"><h1>KAYABASE</h1></div>
+      <div class="col-12 text-center"><h1>KAYABASE1</h1></div>
     </div>
   </div>
 </template>
