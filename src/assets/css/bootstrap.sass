@@ -1,0 +1,35 @@
+@import "bootstrap/scss/functions"
+
+// $dark: #000C1B
+// $light: #4c6bff
+$primary: #3D5486
+$success: #34C38F
+// $warning: #ffd736
+// $danger: #f42011
+$info: #DCEDFC
+$secondary: #F6F6F6
+$light-green: #E6EDEF
+$light-primary: #7B90BF
+$light-danger: #FDE1E1
+$light-blue: #B5E4FA
+$light-gray: #F5F7FB
+$light-success: #7AD1B3
+$gray: #F6F6F6
+$muted: #b0bac9
+$enable-negative-margins: true
+$lighter: #f9f9f9
+
+$sidebar-width: 300px
+
+@import "bootstrap/scss/variables"
+
+$theme-colors: map-merge($theme-colors, ('light-green':$light-green))
+$theme-colors: map-merge($theme-colors, ('light-primary':$light-primary))
+$theme-colors: map-merge($theme-colors, ('light-danger':$light-danger))
+$theme-colors: map-merge($theme-colors, ('light-blue':$light-blue))
+$theme-colors: map-merge($theme-colors, ('light-gray':$light-gray))
+$theme-colors: map-merge($theme-colors, ('gray':$gray))
+$theme-colors: map-merge($theme-colors, ('lighter':$lighter))
+$theme-colors: map-merge($theme-colors, ('light-success':$light-success))
+@import "bootstrap/scss/mixins"
+@import "bootstrap/scss/utilities"
