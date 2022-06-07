@@ -11,18 +11,18 @@
 </template>
 
 <script>
-  import Navbar from "./Layout/Navbar.vue";
-  import Sidebar from "./Layout/Sidebar.vue";
-  export default {
-    components: {
-      Navbar,
-      Sidebar,
-    },
-  };
+import Navbar from "./Layout/Navbar.vue";
+import Sidebar from "./Layout/Sidebar.vue";
+export default {
+  components: {
+    Navbar,
+    Sidebar,
+  },
+};
 </script>
 
 <style>
-  .dashboard {
-    margin-left: 250px !important;
-  }
+.dashboard {
+  margin-left: 250px !important;
+}
 </style>

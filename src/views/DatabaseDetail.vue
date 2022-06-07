@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="card p-3">
-      <div class="d-flex justify-content-between">
+      <h4 v-if="databaseData">{{ databaseData.name }}</h4>
+      <hr />
+      <span class="text-primary fw-bold">Tables</span>
+      <div class="mt-5 d-flex justify-content-between">
         <div>
           <svg
             width="14"
@@ -36,7 +39,7 @@
           <button
             class="btn btn-success"
             data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
+            data-bs-target="#exampleModal2"
           >
             Add New
           </button>
@@ -45,19 +48,19 @@
         <!-- MODAL -->
         <div
           class="modal fade"
-          id="exampleModal"
+          id="exampleModal2"
           tabindex="-1"
-          aria-labelledby="exampleModalLabel"
+          aria-labelledby="exampleModal2Label"
           aria-hidden="true"
         >
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">New Database</h5>
+                <h5 class="modal-title" id="exampleModal2Label">New Table</h5>
                 <button
                   type="button"
                   class="btn-close"
-                  id="database-modal-close"
+                  id="detail-modal-close"
                   data-bs-dismiss="modal"
                   aria-label="Close"
                   @click="closeEditModal"
@@ -76,9 +79,70 @@
                       type="text"
                       class="form-control bg-light-gray"
                       id="login-email"
-                      placeholder="Database Name"
-                      v-model="name"
+                      placeholder="Table Name"
+                      v-model="tableForm.name"
                     />
+                  </div>
+                </div>
+                <div v-if="!isEdit">
+                  <hr />
+                  Columns
+                  <div class="row">
+                    <div class="mb-3">
+                      <label
+                        for="login-email"
+                        class="form-label text-muted"
+                        style="font-size: 14px"
+                        >Name</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control bg-light-gray"
+                        id="login-email"
+                        placeholder="Column Name"
+                        v-model="tableForm.columns[0].name"
+                      />
+                    </div>
+                    <div class="mb-3">
+                      <select
+                        class="form-select"
+                        aria-label="Type"
+                        v-model="tableForm.columns[0].type"
+                      >
+                        <option value="string">String</option>
+                        <option value="integer">Integer</option>
+                        <option value="boolean">Boolean</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label
+                        for="login-email"
+                        class="form-label text-muted"
+                        style="font-size: 14px"
+                        >Length</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control bg-light-gray"
+                        id="login-email"
+                        placeholder="Column Length"
+                        v-model="tableForm.columns[0].length"
+                      />
+                    </div>
+                    <div class="mb-3">
+                      <input
+                        type="checkbox"
+                        id="check"
+                        class="form-check-input bg-light-gray"
+                        v-model="tableForm.columns[0].nullable"
+                      />
+                      <label
+                        for="check"
+                        class="form-check-input-label text-muted"
+                        style="font-size: 14px"
+                        >Nullable</label
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
@@ -118,7 +182,7 @@
                 <button
                   type="button"
                   class="btn btn-primary"
-                  @click="saveDatabase"
+                  @click="saveTable"
                 >
                   <span v-if="loadingBtn">
                     <svg
@@ -145,7 +209,7 @@
                       </g>
                     </svg>
                   </span>
-                  <span v-else> {{ isEdit ? "Edit " : "Save" }} Database </span>
+                  <span v-else> {{ isEdit ? "Edit " : "Save" }} Table </span>
                 </button>
               </div>
             </div>
@@ -160,46 +224,28 @@
             <th scope="col" v-for="(header, index) in colHeaders" :key="index">
               {{ header.label }}
             </th>
-            <!-- <th scope="col">
-              <button
-                class="btn bg-transparent"
-                @click="openAddRow"
-                v-show="!addRow"
-              >
-                Add Row +
-              </button>
-              <input
-                v-show="addRow"
-                type="text"
-                id="rowNameText"
-                v-model="rowName"
-                @keypress.enter="addRowFunc"
-                @focusout="addRowFunc"
-                class="w-25 form-control"
-              />
-            </th> -->
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(data, index) in databaseData" :key="index">
+        <tbody v-if="databaseData">
+          <tr v-for="data in databaseData.tables" :key="data.id">
             <th scope="row">{{ data.id }}</th>
             <td>{{ data.name }}</td>
             <td>
               <button
                 class="btn btn-warning"
-                @click="$router.push(`/database/${data.id}/detail`)"
+                @click="$router.push(`/table/${data.id}/detail`)"
               >
                 Detail
               </button>
               <button
                 class="btn btn-primary mx-1"
                 data-bs-toggle="modal"
-                data-bs-target="#exampleModal"
-                @click="editDatabaseModal(data)"
+                data-bs-target="#exampleModal2"
+                @click="openEditModal(data)"
               >
                 Edit
               </button>
-              <button class="btn btn-danger" @click="deleteDatabase(data)">
+              <button class="btn btn-danger" @click="deleteTable(data)">
                 <span v-if="loadingBtn">
                   <svg
                     width="28"
@@ -237,9 +283,10 @@
 </template>
 
 <script>
+import TableService from "@/core/services/Table.js";
 import DatabaseService from "@/core/services/Database.js";
 export default {
-  name: "Database",
+  name: "DatabaseDetail",
   data() {
     return {
       colHeaders: [
@@ -249,11 +296,22 @@ export default {
       ],
       addRow: false,
       rowName: "",
-      name: "",
+      tableForm: {
+        name: "",
+        columns: [
+          {
+            name: "",
+            type: "string",
+            length: "",
+            nullable: false,
+          },
+        ],
+        database_id: this.$route.params.id,
+      },
       databaseData: null,
-      loadingBtn: false,
-      isEdit: false,
       selectedId: null,
+      isEdit: false,
+      loadingBtn: false,
     };
   },
   methods: {
@@ -269,22 +327,34 @@ export default {
       this.rowName = "";
       this.addRow = false;
     },
-    async getDatabases() {
-      const res = await DatabaseService.list();
+    async getDatabase() {
+      const res = await DatabaseService.get(this.$route.params.id);
       this.databaseData = res.data;
     },
-    async saveDatabase() {
+    async saveTable() {
+      this.loadingBtn = true;
       try {
-        this.loadingBtn = true;
         if (this.isEdit) {
-          await DatabaseService.update(this.selectedId, { name: this.name });
-          this.selectedId = null;
+          await TableService.update(this.selectedId, {
+            name: this.tableForm.name,
+          });
         } else {
-          await DatabaseService.create({ name: this.name });
+          await TableService.create(this.tableForm);
         }
-        await this.getDatabases();
-        const clsBtn = document.querySelector("#database-modal-close");
-        this.name = "";
+        await this.getDatabase();
+        this.tableForm = {
+          name: "",
+          columns: [
+            {
+              name: "",
+              type: "string",
+              length: "",
+              nullable: false,
+            },
+          ],
+          database_id: this.$route.params.id,
+        };
+        const clsBtn = document.querySelector("#detail-modal-close");
         clsBtn.click();
       } catch (error) {
         console.log(error);
@@ -292,30 +362,30 @@ export default {
         this.loadingBtn = false;
       }
     },
-    async deleteDatabase(item) {
+    async deleteTable(item) {
       this.loadingBtn = true;
       try {
-        await DatabaseService.delete(item.id);
-        await this.getDatabases();
+        await TableService.delete(item.id);
+        await this.getDatabase();
       } catch (error) {
         console.log(error);
       } finally {
         this.loadingBtn = false;
       }
     },
-    editDatabaseModal(data) {
+    openEditModal(data) {
       this.isEdit = true;
-      this.name = data.name;
+      this.tableForm.name = data.name;
       this.selectedId = data.id;
     },
     closeEditModal() {
       this.isEdit = false;
-      this.name = "";
+      this.tableForm.name = "";
       this.selectedId = null;
     },
   },
   mounted() {
-    this.getDatabases();
+    this.getDatabase();
   },
 };
 </script>
@@ -330,7 +400,7 @@ export default {
   color: white;
 }
 .modal {
-  top: auto !important;
+  top: 72px !important;
 }
 .modal-backdrop {
   width: 0 !important;

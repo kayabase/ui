@@ -49,13 +49,61 @@
             for="name-surname"
             class="form-label text-muted"
             style="font-size: 14px"
-            >Full Name</label
+            >First Name</label
           >
           <input
             type="text"
             class="form-control bg-light-gray"
             id="name-surname"
-            placeholder="Full Name"
+            placeholder="First Name"
+            v-model="first_name"
+          />
+        </div>
+        <div class="mb-3">
+          <label
+            for="name-surname"
+            class="form-label text-muted"
+            style="font-size: 14px"
+            >Last Name</label
+          >
+          <input
+            type="text"
+            class="form-control bg-light-gray"
+            id="name-surname"
+            placeholder="Last Name"
+            v-model="last_name"
+          />
+        </div>
+        <div class="mb-3">
+          <label
+            for="name-surname"
+            class="form-label text-muted"
+            style="font-size: 14px"
+          >
+            Name</label
+          >
+          <input
+            type="text"
+            class="form-control bg-light-gray"
+            id="name-surname"
+            placeholder="Name"
+            v-model="name"
+          />
+        </div>
+        <div class="mb-3">
+          <label
+            for="name-surname"
+            class="form-label text-muted"
+            style="font-size: 14px"
+          >
+            Phone Number</label
+          >
+          <input
+            type="text"
+            class="form-control bg-light-gray"
+            id="name-surname"
+            placeholder="Phone Number"
+            v-model="phone"
           />
         </div>
         <div class="mb-3">
@@ -70,6 +118,7 @@
             class="form-control bg-light-gray"
             id="register-email"
             placeholder="Email address"
+            v-model="email"
           />
         </div>
         <label
@@ -84,6 +133,7 @@
             class="form-control bg-light-gray"
             id="register-password"
             placeholder="Password"
+            v-model="password"
           />
           <span
             class="input-group-text"
@@ -128,6 +178,7 @@
             class="form-control bg-light-gray"
             id="register-password-again"
             placeholder="Password again"
+            v-model="password_confirmation"
           />
           <span
             class="input-group-text"
@@ -161,7 +212,9 @@
           </span>
         </div>
         <div class="mb-3">
-          <button class="btn btn-primary w-100">Sign In</button>
+          <button class="btn btn-primary w-100" @click="register">
+            Sign In
+          </button>
         </div>
         <div class="mb-3">
           <p class="text-muted">
@@ -177,12 +230,36 @@
 </template>
 
 <script>
-  export default {
-    name: "Register",
-    data() {
-      return {
-        seePassword: false,
-      };
+export default {
+  name: "Register",
+  data() {
+    return {
+      seePassword: false,
+      first_name: "",
+      last_name: "",
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+    };
+  },
+  methods: {
+    async register() {
+      try {
+        this.$store.dispatch("register", {
+          first_name: this.first_name,
+          last_name: this.last_name,
+          name: this.name,
+          phone: this.phone,
+          email: this.email,
+          password: this.password,
+          password_confirmation: this.password_confirmation,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     },
-  };
+  },
+};
 </script>

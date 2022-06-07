@@ -49,6 +49,21 @@
             for="login-email"
             class="form-label text-muted"
             style="font-size: 14px"
+            >Account ID</label
+          >
+          <input
+            type="number"
+            class="form-control bg-light-gray"
+            id="login-email"
+            placeholder="Account ID"
+            v-model="tenant"
+          />
+        </div>
+        <div class="mb-3">
+          <label
+            for="login-email"
+            class="form-label text-muted"
+            style="font-size: 14px"
             >EMAIL</label
           >
           <input
@@ -56,6 +71,7 @@
             class="form-control bg-light-gray"
             id="login-email"
             placeholder="Email address"
+            v-model="email"
           />
         </div>
         <label
@@ -70,6 +86,7 @@
             class="form-control bg-light-gray"
             id="login-password"
             placeholder="Password"
+            v-model="password"
           />
           <span
             class="input-group-text"
@@ -103,7 +120,7 @@
           </span>
         </div>
         <div class="mb-3">
-          <button class="btn btn-primary w-100">Log In</button>
+          <button class="btn btn-primary w-100" @click="login">Log In</button>
         </div>
         <div class="mb-3">
           <p class="text-muted">
@@ -119,12 +136,28 @@
 </template>
 
 <script>
-  export default {
-    name: "Login",
-    data() {
-      return {
-        seePassword: false,
-      };
+export default {
+  name: "Login",
+  data() {
+    return {
+      seePassword: false,
+      email: "",
+      password: "",
+      tenant: null,
+    };
+  },
+  methods: {
+    async login() {
+      try {
+        localStorage.setItem("tenant", this.tenant);
+        this.$store.dispatch("login", {
+          email: this.email,
+          password: this.password,
+        });
+      } catch (error) {
+        console.log(error);
+      }
     },
-  };
+  },
+};
 </script>
